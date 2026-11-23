@@ -1,4 +1,5 @@
 import { client, urlFor } from '@/lib/sanity';
+import BackgroundSticker from '@/components/BackgroundSticker';
 import CategoryLanding from '@/components/CategoryLanding';
 
 export const revalidate = 60;
@@ -31,5 +32,19 @@ export default async function Home() {
     });
   });
 
-  return <CategoryLanding profile={profile} groupedProjects={groupedProjects} />;
+  const stickerUrl = profile?.backgroundSticker
+    ? urlFor(profile.backgroundSticker).width(320).height(320).fit('max').url()
+    : null;
+
+  return (
+    <>
+      <BackgroundSticker
+        src={stickerUrl}
+        x={profile?.backgroundStickerX}
+        y={profile?.backgroundStickerY}
+        rotation={profile?.backgroundStickerRotation}
+      />
+      <CategoryLanding profile={profile} groupedProjects={groupedProjects} />
+    </>
+  );
 }

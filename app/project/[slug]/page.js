@@ -1,5 +1,7 @@
 import Image from 'next/image';
 import Link from 'next/link';
+import BackgroundSticker from '@/components/BackgroundSticker';
+import VideoPlayer from '@/components/VideoPlayer';
 import { client, urlFor } from '@/lib/sanity';
 
 export const revalidate = 60;
@@ -49,13 +51,28 @@ const projectQuery = `*[_type == "project" && slug.current == $slug][0]{
 
 export default async function ProjectPage({ params }) {
   const { slug } = await params;
-  const project = await client.fetch(projectQuery, { slug });
+  const [project, profile] = await Promise.all([
+    client.fetch(projectQuery, { slug }),
+    client.fetch(`*[_type == "profile"][0]{ backgroundSticker, backgroundStickerX, backgroundStickerY, backgroundStickerRotation, categorySettings }`),
+  ]);
+  const stickerUrl = profile?.backgroundSticker
+    ? urlFor(profile.backgroundSticker).width(320).height(320).fit('max').url()
+    : null;
 
   if (!project) {
     return (
-      <div style={{ maxWidth: '1000px', margin: '80px auto', padding: '0 24px' }}>
-        <h2>Project Not Found</h2>
-        <Link href="/" style={{ textDecoration: 'underline', color: '#141413' }}>← Back to Index</Link>
+      <div className="project-page">
+        <BackgroundSticker
+          src={stickerUrl}
+          x={profile?.backgroundStickerX}
+          y={profile?.backgroundStickerY}
+          rotation={profile?.backgroundStickerRotation}
+        />
+        <div className="project-not-found">
+          <span className="pin-mark" aria-hidden="true" />
+          <h2>Project Not Found</h2>
+          <Link href="/">← Back to Index</Link>
+        </div>
       </div>
     );
   }
@@ -63,19 +80,21 @@ export default async function ProjectPage({ params }) {
   const embedUrl = getEmbedUrl(project.videoUrl);
   const categoryKey = project.category || '3d';
   const categoryLabel = CATEGORY_LABELS[categoryKey] || 'Works';
+  const categorySetting = profile?.categorySettings?.find((setting) => setting.category === categoryKey);
+  const accentColor = /^#[0-9a-f]{6}$/i.test(categorySetting?.color || '')
+    ? categorySetting.color
+    : undefined;
 
   return (
-    <div style={{ width: '100%', color: '#141413' }}>
-      <article
-        style={{
-          width: '100%',
-          maxWidth: '1200px',
-          margin: '0 auto',
-          padding: '48px 24px 120px',
-          boxSizing: 'border-box',
-        }}
-      >
-        <div style={{ display: 'flex', gap: '1.5rem', marginBottom: '2.5rem', flexWrap: 'wrap' }}>
+    <div className="project-page" style={accentColor ? { '--category-accent': accentColor } : undefined}>
+      <BackgroundSticker
+          src={stickerUrl}
+          x={profile?.backgroundStickerX}
+          y={profile?.backgroundStickerY}
+          rotation={profile?.backgroundStickerRotation}
+        />
+      <article className="project-article">
+        <div style={{ display: 'flex', justifyContent: 'center', gap: '1.5rem', marginBottom: '2.5rem', flexWrap: 'wrap' }}>
           <Link
             href={`/work/${categoryKey}`}
             style={{
@@ -94,14 +113,15 @@ export default async function ProjectPage({ params }) {
         </div>
 
         {/* HEADER */}
-        <header style={{ borderBottom: '1.5px solid #141413', paddingBottom: '2rem', marginBottom: '3rem', width: '100%' }}>
+        <header className="project-heading pinned-paper">
+          <span className="pin-mark" aria-hidden="true" />
           <h1
             style={{
-              fontFamily: 'var(--font-display), sans-serif',
+              fontFamily: 'var(--display)',
               fontSize: 'clamp(2rem, 4vw, 3.25rem)',
-              fontWeight: 800,
+              fontWeight: 650,
               margin: '0 0 0.75rem 0',
-              letterSpacing: '-0.03em',
+              letterSpacing: '-0.04em',
             }}
           >
             {project.title}
@@ -120,15 +140,15 @@ export default async function ProjectPage({ params }) {
             {project.softwareUsed && <span>{project.softwareUsed}</span>}
           </div>
           {project.description && (
-            <p style={{ fontSize: '1.02rem', lineHeight: '1.65', color: '#2B2A27', whiteSpace: 'pre-line', margin: 0, maxWidth: '850px' }}>
+            <p style={{ fontSize: '1.02rem', lineHeight: '1.65', color: 'var(--ink)', whiteSpace: 'pre-line', margin: '0 auto', maxWidth: '850px' }}>
               {project.description}
             </p>
           )}
 
           {/* FEATURED AUDIO PLAYER */}
           {project.audioUrl && (
-            <div style={{ marginTop: '1.75rem', maxWidth: '540px' }}>
-              <span style={{ display: 'block', fontSize: '0.72rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: '0.45rem', color: '#57554E' }}>
+            <div style={{ margin: '1.75rem auto 0', maxWidth: '540px' }}>
+              <span style={{ display: 'block', fontSize: '0.72rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: '0.45rem', color: '#57554E', textAlign: 'center' }}>
                 Audio Track
               </span>
               <audio
@@ -143,17 +163,8 @@ export default async function ProjectPage({ params }) {
 
         {/* 16:9 RESPONSIVE FULL-WIDTH VIDEO EMBED */}
         {embedUrl && (
-          <div
-            style={{
-              width: '100%',
-              aspectRatio: '16 / 9',
-              backgroundColor: '#141413',
-              border: '1.5px solid #141413',
-              borderRadius: '6px',
-              marginBottom: '4rem',
-              overflow: 'hidden',
-            }}
-          >
+          <div className="project-video-frame">
+            <span className="pin-mark" aria-hidden="true" />
             <iframe
               src={embedUrl}
               title="Project Video"
@@ -171,18 +182,8 @@ export default async function ProjectPage({ params }) {
             const isVideo = item._type === 'file' && item.asset?.mimeType?.startsWith('video/');
 
             return (
-              <figure
-                key={index}
-                style={{
-                  margin: 0,
-                  border: '1.5px solid #141413',
-                  borderRadius: '6px',
-                  padding: '12px',
-                  background: '#F2EFE7',
-                  width: '100%',
-                  boxSizing: 'border-box',
-                }}
-              >
+              <figure key={index} className="pinned-frame">
+                <span className="pin-mark" aria-hidden="true" />
                 {/* UPLOADED AUDIO */}
                 {isAudio && item.asset?.url && (
                   <div style={{ padding: '12px 8px' }}>
@@ -197,14 +198,10 @@ export default async function ProjectPage({ params }) {
 
                 {/* UPLOADED VIDEO */}
                 {isVideo && item.asset?.url && (
-                  <video
+                  <VideoPlayer
                     src={item.asset.url}
-                    controls={!item.autoLoop}
-                    autoPlay={item.autoLoop}
-                    loop={item.autoLoop}
-                    muted={item.autoLoop}
-                    playsInline
-                    style={{ width: '100%', height: 'auto', display: 'block', borderRadius: '4px' }}
+                    autoLoop={item.autoLoop}
+                    title={item.caption || `Gallery video ${index + 1}`}
                   />
                 )}
 
@@ -220,7 +217,7 @@ export default async function ProjectPage({ params }) {
                 )}
 
                 {item.caption && (
-                  <figcaption style={{ fontSize: '0.8rem', color: '#57554E', marginTop: '10px', padding: '0 4px' }}>
+                  <figcaption className="frame-caption">
                     {item.caption}
                   </figcaption>
                 )}
