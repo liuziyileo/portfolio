@@ -1,19 +1,26 @@
 import { client, urlFor } from '@/lib/sanity';
-import BackgroundSticker from '@/components/BackgroundSticker';
+import { resolveSiteSettings } from '@/lib/site-settings';
+import BoardBackdrop from '@/components/BoardBackdrop';
 import CategoryLanding from '@/components/CategoryLanding';
 
 export const revalidate = 60;
 
 async function getData() {
-  const profile = await client.fetch(`*[_type == "profile"][0]`);
-  const projects = await client.fetch(
-    `*[_type == "project"] | order(coalesce(order, 999) asc, _createdAt desc)`
-  );
-  return { profile, projects };
+  const [profile, projects, settingsDocument] = await Promise.all([
+    client.fetch(`*[_type == "profile"][0]`),
+    client.fetch(`*[_type == "project"] | order(coalesce(order, 999) asc, _createdAt desc)`),
+    client.fetch(`*[_type == "siteSettings"][0]`),
+  ]);
+
+  return {
+    profile,
+    projects,
+    siteSettings: resolveSiteSettings(settingsDocument, profile),
+  };
 }
 
 export default async function Home() {
-  const { profile, projects = [] } = await getData();
+  const { profile, projects = [], siteSettings } = await getData();
 
   const groupedProjects = {
     '3d': [],
@@ -32,19 +39,24 @@ export default async function Home() {
     });
   });
 
-  const stickerUrl = profile?.backgroundSticker
-    ? urlFor(profile.backgroundSticker).width(320).height(320).fit('max').url()
+  const stickerUrl = siteSettings.backgroundSticker
+    ? urlFor(siteSettings.backgroundSticker).width(320).height(320).fit('max').url()
     : null;
 
   return (
     <>
-      <BackgroundSticker
+      <BoardBackdrop
         src={stickerUrl}
-        x={profile?.backgroundStickerX}
-        y={profile?.backgroundStickerY}
-        rotation={profile?.backgroundStickerRotation}
+        color={siteSettings.boardColor}
+        x={siteSettings.backgroundStickerX}
+        y={siteSettings.backgroundStickerY}
+        rotation={siteSettings.backgroundStickerRotation}
       />
-      <CategoryLanding profile={profile} groupedProjects={groupedProjects} />
+      <CategoryLanding
+        profile={profile}
+        siteSettings={siteSettings}
+        groupedProjects={groupedProjects}
+      />
     </>
   );
 }
