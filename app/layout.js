@@ -15,16 +15,10 @@ export default function RootLayout({ children }) {
   return (
     <html lang="en" className={outfit.variable}>
       <body>
-        <div style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
-          {children}
-        </div>
+        <div className="site-content">{children}</div>
 
         <footer className="portfolio-footer">
           <span className="footer-copy">© Leo Liu 2026 · 3D, compositing & visual arts</span>
-          <div className="sticker-slot" aria-label="Reserved spot for a custom sticker">
-            <span aria-hidden="true">✳</span>
-            <small>your sticker</small>
-          </div>
         </footer>
       </body>
     </html>

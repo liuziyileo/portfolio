@@ -5,12 +5,20 @@ import Image from 'next/image';
 import Link from 'next/link';
 
 const CATEGORIES = [
-  { id: '3d', label: '3D Work', index: '01' },
-  { id: 'compositing-2d', label: 'Compositing & 2D', index: '02' },
-  { id: 'misc', label: 'Miscellaneous', index: '03' },
+  { id: '3d', label: '3D Work', index: '01', description: 'Character sculpting, modeling, rigging, shading, and animation.' },
+  { id: 'compositing-2d', label: 'Compositing & 2D', index: '02', description: 'Visual effects compositing, clean plating, and 2D illustration.' },
+  { id: 'misc', label: 'Miscellaneous', index: '03', description: 'Sound, interactive experiments, hardware, and studies.' },
 ];
 
 export default function CategoryLanding({ profile, groupedProjects }) {
+  const settingsByCategory = new Map(
+    (profile?.categorySettings || []).map((setting) => [setting.category, setting])
+  );
+  const categories = [...CATEGORIES].sort((left, right) => {
+    const leftPosition = Number(settingsByCategory.get(left.id)?.position) || Number(left.index);
+    const rightPosition = Number(settingsByCategory.get(right.id)?.position) || Number(right.index);
+    return leftPosition - rightPosition;
+  });
   const [hoveredId, setHoveredId] = useState(null);
   const [activeMobileId, setActiveMobileId] = useState(null);
   const [isMobile, setIsMobile] = useState(false);
@@ -48,6 +56,8 @@ export default function CategoryLanding({ profile, groupedProjects }) {
     <>
       <style>{`
         .landing-wrapper {
+          position: relative;
+          z-index: 1;
           flex: 1;
           display: flex;
           flex-direction: column;
@@ -108,27 +118,6 @@ export default function CategoryLanding({ profile, groupedProjects }) {
           background: var(--ink);
         }
 
-        .landing-kicker {
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          gap: 10px;
-          margin: clamp(46px, 9vh, 92px) 0 0;
-          color: var(--muted);
-          font-size: 0.68rem;
-          letter-spacing: 0.18em;
-          text-align: center;
-          text-transform: uppercase;
-        }
-
-        .landing-kicker::before,
-        .landing-kicker::after {
-          width: 30px;
-          height: 1px;
-          background: var(--accent);
-          content: '';
-        }
-
         .category-stage {
           display: flex;
           width: 100%;
@@ -153,13 +142,18 @@ export default function CategoryLanding({ profile, groupedProjects }) {
         .category-node {
           position: relative;
           display: flex;
-          min-width: 210px;
-          min-height: 112px;
+          width: clamp(240px, 25vw, 340px);
+          min-width: 0;
+          min-height: 184px;
           flex-direction: column;
           align-items: center;
           justify-content: center;
-          padding: 16px;
+          padding: 28px 20px 20px;
+          border: 1px solid rgba(93, 70, 47, 0.14);
+          border-radius: 2px;
           color: var(--ink);
+          background: rgba(255, 253, 247, 0.94);
+          box-shadow: 0 10px 24px rgba(57, 37, 20, 0.16), 0 2px 5px rgba(57, 37, 20, 0.1);
           text-align: center;
           text-decoration: none;
           cursor: pointer;
@@ -167,9 +161,26 @@ export default function CategoryLanding({ profile, groupedProjects }) {
           isolation: isolate;
         }
 
+        .category-node::before {
+          position: absolute;
+          top: 8px;
+          left: 50%;
+          width: 12px;
+          height: 12px;
+          border: 1px solid rgba(108, 42, 30, 0.48);
+          border-radius: 50%;
+          background: radial-gradient(circle at 35% 30%, color-mix(in srgb, var(--category-accent, var(--accent)) 42%, white) 0 12%, var(--category-accent, var(--accent)) 36%, color-mix(in srgb, var(--category-accent, var(--accent)) 58%, black) 100%);
+          box-shadow: 0 2px 3px rgba(53, 31, 20, 0.3);
+          content: '';
+          transform: translateX(-50%);
+          transition: opacity 200ms ease;
+        }
+
+        .category-node.is-open::before { opacity: 0; }
+
         .category-node:focus-visible {
           outline: 1px solid var(--accent);
-          outline-offset: 12px;
+          outline-offset: 8px;
           border-radius: 2px;
         }
 
@@ -177,7 +188,7 @@ export default function CategoryLanding({ profile, groupedProjects }) {
         .category-count {
           position: relative;
           z-index: 3;
-          color: var(--muted);
+          color: var(--category-accent, var(--muted));
           font-size: 0.68rem;
           letter-spacing: 0.14em;
           transition: opacity 240ms ease;
@@ -185,6 +196,16 @@ export default function CategoryLanding({ profile, groupedProjects }) {
 
         .category-index { margin-bottom: 8px; }
         .category-count { margin-top: 9px; letter-spacing: 0.06em; }
+
+        .category-description {
+          max-width: 275px;
+          margin: 12px 0 0;
+          color: var(--muted);
+          font-size: 0.76rem;
+          line-height: 1.45;
+          text-align: center;
+          transition: opacity 240ms ease;
+        }
 
         .category-title {
           position: relative;
@@ -205,7 +226,8 @@ export default function CategoryLanding({ profile, groupedProjects }) {
         }
 
         .category-node.is-open .category-index,
-        .category-node.is-open .category-count { opacity: 0.12; }
+        .category-node.is-open .category-count,
+        .category-node.is-open .category-description { opacity: 0.08; }
 
         .card-fan {
           position: absolute;
@@ -224,13 +246,28 @@ export default function CategoryLanding({ profile, groupedProjects }) {
           width: clamp(112px, 13vw, 164px);
           aspect-ratio: 4 / 3;
           overflow: hidden;
-          border: 5px solid var(--paper);
+          border: 6px solid var(--paper);
           border-radius: 3px;
           background: var(--paper-deep);
           box-shadow: 0 12px 30px rgba(32, 33, 30, 0.18);
           opacity: 0;
           transform: translate(-50%, -50%) scale(0.24) rotate(0deg);
           transition: transform 560ms var(--ease-out), opacity 220ms ease;
+        }
+
+        .fan-card::before {
+          position: absolute;
+          z-index: 3;
+          top: 2px;
+          left: 50%;
+          width: 9px;
+          height: 9px;
+          border: 1px solid rgba(108, 42, 30, 0.48);
+          border-radius: 50%;
+          background: #c9503d;
+          box-shadow: 0 1px 2px rgba(53, 31, 20, 0.35);
+          content: '';
+          transform: translateX(-50%);
         }
 
         .fan-card img {
@@ -262,7 +299,7 @@ export default function CategoryLanding({ profile, groupedProjects }) {
         @media (max-width: 520px) {
           .landing-wrapper { padding-inline: 18px; }
           .category-stage { gap: 70px; padding-block: 64px 76px; }
-          .category-node { min-height: 102px; }
+          .category-node { width: min(100%, 340px); min-height: 184px; }
           .fan-card { width: 116px; }
           .category-node.is-open .fan-card-0 { transform: translate(calc(-50% - 63px), -50%) rotate(-9deg) scale(1); }
           .category-node.is-open .fan-card-1 { transform: translate(-50%, -50%) rotate(1deg) scale(1.04); }
@@ -293,12 +330,15 @@ export default function CategoryLanding({ profile, groupedProjects }) {
           </nav>
         </header>
 
-        <p className="landing-kicker">Selected work · 2026</p>
-
         <main className="category-stage" aria-label="Portfolio categories">
-          {CATEGORIES.map((category) => {
+          {categories.map((category, categoryIndex) => {
             const items = groupedProjects[category.id] || [];
             const previewCards = items.slice(0, 3);
+            const categorySetting = settingsByCategory.get(category.id);
+            const description = categorySetting?.description?.trim() || category.description;
+            const accentColor = /^#[0-9a-f]{6}$/i.test(categorySetting?.color || '')
+              ? categorySetting.color
+              : undefined;
             const isOpen = isMobile ? activeMobileId === category.id : hoveredId === category.id;
 
             return (
@@ -308,6 +348,7 @@ export default function CategoryLanding({ profile, groupedProjects }) {
                 data-cat={category.id}
                 ref={(element) => (sectionRefs.current[category.id] = element)}
                 className={`category-node ${isOpen ? 'is-open' : ''}`}
+                style={accentColor ? { '--category-accent': accentColor } : undefined}
                 onMouseEnter={() => !isMobile && setHoveredId(category.id)}
                 onMouseLeave={() => !isMobile && setHoveredId(null)}
                 onFocus={() => !isMobile && setHoveredId(category.id)}
@@ -327,8 +368,9 @@ export default function CategoryLanding({ profile, groupedProjects }) {
                     </div>
                   ))}
                 </div>
-                <span className="category-index">{category.index} / 03</span>
+                <span className="category-index">{String(categoryIndex + 1).padStart(2, '0')} / 03</span>
                 <h2 className="category-title">{category.label}</h2>
+                <p className="category-description">{description}</p>
                 <span className="category-count">
                   {items.length} {items.length === 1 ? 'Work' : 'Works'}
                 </span>

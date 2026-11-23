@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import Image from 'next/image';
+import BackgroundSticker from '@/components/BackgroundSticker';
 import { client, urlFor } from '@/lib/sanity';
 
 export const revalidate = 60;
@@ -23,23 +24,42 @@ export default async function CategoryPage({ params }) {
   const { category } = await params;
   const meta = CATEGORY_META[category] || { title: 'Works', subtitle: '' };
 
-  const projects = await client.fetch(
-    `*[_type == "project" && coalesce(category, "3d") == $category] | order(coalesce(order, 999) asc, _createdAt desc){
-      _id,
-      title,
-      slug,
-      year,
-      softwareUsed,
-      coverImage,
-      "audioUrl": audioFile.asset->url
-    }`,
-    { category }
-  );
+  const [projects, profile] = await Promise.all([
+    client.fetch(
+      `*[_type == "project" && coalesce(category, "3d") == $category] | order(coalesce(order, 999) asc, _createdAt desc){
+        _id,
+        title,
+        slug,
+        year,
+        softwareUsed,
+        coverImage,
+        "audioUrl": audioFile.asset->url
+      }`,
+      { category }
+    ),
+    client.fetch(`*[_type == "profile"][0]{ backgroundSticker, backgroundStickerX, backgroundStickerY, backgroundStickerRotation, categorySettings }`),
+  ]);
+  const stickerUrl = profile?.backgroundSticker
+    ? urlFor(profile.backgroundSticker).width(320).height(320).fit('max').url()
+    : null;
+  const categorySetting = profile?.categorySettings?.find((setting) => setting.category === category);
+  const description = categorySetting?.description?.trim() || meta.subtitle;
+  const accentColor = /^#[0-9a-f]{6}$/i.test(categorySetting?.color || '')
+    ? categorySetting.color
+    : undefined;
 
   return (
     <>
+      <BackgroundSticker
+        src={stickerUrl}
+        x={profile?.backgroundStickerX}
+        y={profile?.backgroundStickerY}
+        rotation={profile?.backgroundStickerRotation}
+      />
       <style>{`
         .section-page {
+          position: relative;
+          z-index: 1;
           max-width: 1360px;
           width: 100%;
           margin: 0 auto;
@@ -47,10 +67,27 @@ export default async function CategoryPage({ params }) {
           box-sizing: border-box;
         }
 
+        .section-page .pin-mark {
+          background: radial-gradient(circle at 35% 30%, color-mix(in srgb, var(--category-accent, var(--accent)) 42%, white) 0 12%, var(--category-accent, var(--accent)) 36%, color-mix(in srgb, var(--category-accent, var(--accent)) 58%, black) 100%);
+        }
+
         @media (min-width: 900px) {
           .section-page {
             padding: 56px 48px 110px;
           }
+        }
+
+        .section-heading {
+          margin-bottom: 3rem;
+          padding: 36px 24px 24px;
+          text-align: center;
+        }
+
+        .empty-work-state {
+          max-width: 640px;
+          margin: 54px auto;
+          padding: 38px 24px 26px;
+          text-align: center;
         }
 
         .nav-strip {
@@ -68,9 +105,9 @@ export default async function CategoryPage({ params }) {
           font-weight: 700;
           text-transform: uppercase;
           letter-spacing: 0.06em;
-          color: #141413;
+          color: var(--ink);
           text-decoration: none;
-          border-bottom: 1.5px solid #141413;
+          border-bottom: 1px solid var(--ink);
           padding-bottom: 2px;
         }
 
@@ -94,14 +131,15 @@ export default async function CategoryPage({ params }) {
 
         .cat-pill:hover,
         .cat-pill.active {
-          background-color: #141413;
-          color: #F9F7F1;
-          border-color: #141413;
+          background-color: var(--ink);
+          color: var(--paper);
+          border-color: var(--ink);
         }
 
         .section-grid {
           display: grid;
           grid-template-columns: 1fr;
+          justify-items: center;
           gap: 2.25rem;
         }
 
@@ -118,20 +156,37 @@ export default async function CategoryPage({ params }) {
         }
 
         .work-card {
+          position: relative;
           display: flex;
+          width: 100%;
+          max-width: 430px;
           flex-direction: column;
           align-items: center;
+          padding: 30px 16px 18px;
+          border: 1px solid rgba(93, 70, 47, 0.14);
+          background: var(--paper);
+          box-shadow: 0 10px 24px rgba(57, 37, 20, 0.16), 0 2px 5px rgba(57, 37, 20, 0.1);
           text-align: center;
         }
 
+        .work-card > .pin-mark {
+          top: 9px;
+        }
+
+        .work-card > a {
+          display: block;
+          width: 100%;
+        }
+
         .work-thumb-wrap {
-          border: 1.5px solid #141413;
-          border-radius: 6px;
-          overflow: hidden;
-          aspect-ratio: 16 / 9;
-          background-color: #EAE6DC;
           position: relative;
+          overflow: hidden;
+          width: 100%;
+          aspect-ratio: 16 / 9;
           margin-bottom: 0.85rem;
+          border: 8px solid #fff;
+          background: var(--paper-deep);
+          box-shadow: 0 2px 8px rgba(57, 37, 20, 0.13);
         }
 
         .work-thumb-wrap img {
@@ -143,7 +198,7 @@ export default async function CategoryPage({ params }) {
         }
       `}</style>
 
-      <div className="section-page">
+      <div className="section-page" style={accentColor ? { '--category-accent': accentColor } : undefined}>
         <div className="nav-strip">
           <Link href="/" className="back-link">
             ← Index
@@ -162,33 +217,36 @@ export default async function CategoryPage({ params }) {
           </nav>
         </div>
 
-        <header style={{ borderBottom: '1.5px solid #141413', paddingBottom: '1.75rem', marginBottom: '3rem', textAlign: 'center' }}>
+        <header className="section-heading pinned-paper">
+          <span className="pin-mark" aria-hidden="true" />
           <h1
             style={{
               fontFamily: 'var(--display)',
-              fontSize: 'clamp(2.2rem, 4.5vw, 3.6rem)',
-              fontWeight: 800,
-              letterSpacing: '-0.03em',
+              fontSize: 'clamp(1.54rem, 3.15vw, 2.52rem)',
+              fontWeight: 650,
+              letterSpacing: '-0.04em',
               margin: '0 0 0.5rem 0',
             }}
           >
             {meta.title}
           </h1>
-          {meta.subtitle && (
+          {description && (
             <p style={{ fontSize: '0.95rem', color: '#57554E', margin: '0 auto', maxWidth: '640px' }}>
-              {meta.subtitle}
+              {description}
             </p>
           )}
         </header>
 
         {projects.length === 0 ? (
-          <p style={{ fontSize: '0.9rem', color: '#57554E' }}>
+          <p className="empty-work-state pinned-paper">
+            <span className="pin-mark" aria-hidden="true" />
             No works added to {meta.title} yet. Assign projects to this category in <code>/studio</code>.
           </p>
         ) : (
           <div className="section-grid">
             {projects.map((project) => (
               <article key={project._id} className="work-card">
+                <span className="pin-mark" aria-hidden="true" />
                 <Link
                   href={`/project/${project.slug?.current}`}
                   style={{ textDecoration: 'none', color: '#141413' }}
