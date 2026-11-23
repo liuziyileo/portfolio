@@ -2,6 +2,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import BoardBackdrop from '@/components/BoardBackdrop';
 import { client, urlFor } from '@/lib/sanity';
+import { resolveSiteSettings } from '@/lib/site-settings';
 
 export const revalidate = 60;
 
@@ -24,7 +25,7 @@ export default async function CategoryPage({ params }) {
   const { category } = await params;
   const meta = CATEGORY_META[category] || { title: 'Works', subtitle: '' };
 
-  const [projects, profile] = await Promise.all([
+  const [projects, profile, settingsDocument] = await Promise.all([
     client.fetch(
       `*[_type == "project" && coalesce(category, "3d") == $category] | order(coalesce(order, 999) asc, _createdAt desc){
         _id,
@@ -37,12 +38,14 @@ export default async function CategoryPage({ params }) {
       }`,
       { category }
     ),
-    client.fetch(`*[_type == "profile"][0]{ backgroundSticker, backgroundStickerX, backgroundStickerY, backgroundStickerRotation, boardColor, categorySettings }`),
+    client.fetch(`*[_type == "profile"][0]{ backgroundSticker, backgroundStickerX, backgroundStickerY, backgroundStickerRotation, boardColor, homeArtworkSize, categorySettings }`),
+    client.fetch(`*[_type == "siteSettings"][0]`),
   ]);
-  const stickerUrl = profile?.backgroundSticker
-    ? urlFor(profile.backgroundSticker).width(320).height(320).fit('max').url()
+  const siteSettings = resolveSiteSettings(settingsDocument, profile);
+  const stickerUrl = siteSettings.backgroundSticker
+    ? urlFor(siteSettings.backgroundSticker).width(320).height(320).fit('max').url()
     : null;
-  const categorySetting = profile?.categorySettings?.find((setting) => setting.category === category);
+  const categorySetting = siteSettings.categorySettings?.find((setting) => setting.category === category);
   const description = categorySetting?.description?.trim() || meta.subtitle;
   const accentColor = /^#[0-9a-f]{6}$/i.test(categorySetting?.color || '')
     ? categorySetting.color
@@ -52,10 +55,10 @@ export default async function CategoryPage({ params }) {
     <>
       <BoardBackdrop
         src={stickerUrl}
-        color={profile?.boardColor}
-        x={profile?.backgroundStickerX}
-        y={profile?.backgroundStickerY}
-        rotation={profile?.backgroundStickerRotation}
+        color={siteSettings.boardColor}
+        x={siteSettings.backgroundStickerX}
+        y={siteSettings.backgroundStickerY}
+        rotation={siteSettings.backgroundStickerRotation}
       />
       <style>{`
         .section-page {

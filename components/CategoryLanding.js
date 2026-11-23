@@ -10,9 +10,10 @@ const CATEGORIES = [
   { id: 'misc', label: 'Miscellaneous', index: '03', description: 'Sound, interactive experiments, hardware, and studies.' },
 ];
 
-export default function CategoryLanding({ profile, groupedProjects }) {
+export default function CategoryLanding({ profile, siteSettings, groupedProjects }) {
+  const artworkSize = Math.min(240, Math.max(112, Number(siteSettings?.homeArtworkSize) || 164));
   const settingsByCategory = new Map(
-    (profile?.categorySettings || []).map((setting) => [setting.category, setting])
+    (siteSettings?.categorySettings || []).map((setting) => [setting.category, setting])
   );
   const categories = [...CATEGORIES].sort((left, right) => {
     const leftPosition = Number(settingsByCategory.get(left.id)?.position) || Number(left.index);
@@ -243,7 +244,7 @@ export default function CategoryLanding({ profile, groupedProjects }) {
           position: absolute;
           top: 0;
           left: 0;
-          width: clamp(112px, 13vw, 164px);
+          width: clamp(112px, 13vw, var(--home-artwork-size, 164px));
           aspect-ratio: 4 / 3;
           overflow: hidden;
           border: 6px solid var(--paper);
@@ -279,7 +280,7 @@ export default function CategoryLanding({ profile, groupedProjects }) {
 
         .category-node.is-open .fan-card-0 {
           opacity: 1;
-          transform: translate(calc(-50% - 90px), calc(-50% + 2px)) rotate(-11deg) scale(1);
+          transform: translate(calc(-50% - var(--fan-offset, 128px)), calc(-50% + 2px)) rotate(-11deg) scale(1);
           transition-delay: 30ms;
         }
 
@@ -292,7 +293,7 @@ export default function CategoryLanding({ profile, groupedProjects }) {
 
         .category-node.is-open .fan-card-2 {
           opacity: 1;
-          transform: translate(calc(-50% + 90px), calc(-50% + 4px)) rotate(12deg) scale(1);
+          transform: translate(calc(-50% + var(--fan-offset, 128px)), calc(-50% + 4px)) rotate(12deg) scale(1);
           transition-delay: 110ms;
         }
 
@@ -300,10 +301,10 @@ export default function CategoryLanding({ profile, groupedProjects }) {
           .landing-wrapper { padding-inline: 18px; }
           .category-stage { gap: 70px; padding-block: 64px 76px; }
           .category-node { width: min(100%, 340px); min-height: 184px; }
-          .fan-card { width: 116px; }
-          .category-node.is-open .fan-card-0 { transform: translate(calc(-50% - 63px), -50%) rotate(-9deg) scale(1); }
+          .fan-card { width: min(72vw, var(--home-artwork-size, 164px)); }
+          .category-node.is-open .fan-card-0 { transform: translate(calc(-50% - var(--fan-offset-mobile, 63px)), -50%) rotate(-9deg) scale(1); }
           .category-node.is-open .fan-card-1 { transform: translate(-50%, -50%) rotate(1deg) scale(1.04); }
-          .category-node.is-open .fan-card-2 { transform: translate(calc(-50% + 63px), -50%) rotate(10deg) scale(1); }
+          .category-node.is-open .fan-card-2 { transform: translate(calc(-50% + var(--fan-offset-mobile, 63px)), -50%) rotate(10deg) scale(1); }
         }
 
         @media (prefers-reduced-motion: reduce) {
@@ -348,7 +349,12 @@ export default function CategoryLanding({ profile, groupedProjects }) {
                 data-cat={category.id}
                 ref={(element) => (sectionRefs.current[category.id] = element)}
                 className={`category-node ${isOpen ? 'is-open' : ''}`}
-                style={accentColor ? { '--category-accent': accentColor } : undefined}
+                style={{
+                  '--home-artwork-size': `${artworkSize}px`,
+                  '--fan-offset': `${Math.round(artworkSize * 0.78)}px`,
+                  '--fan-offset-mobile': `${Math.min(63, Math.round(artworkSize * 0.38))}px`,
+                  ...(accentColor ? { '--category-accent': accentColor } : {}),
+                }}
                 onMouseEnter={() => !isMobile && setHoveredId(category.id)}
                 onMouseLeave={() => !isMobile && setHoveredId(null)}
                 onFocus={() => !isMobile && setHoveredId(category.id)}

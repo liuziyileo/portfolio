@@ -3,6 +3,7 @@ import Link from 'next/link';
 import BoardBackdrop from '@/components/BoardBackdrop';
 import VideoPlayer from '@/components/VideoPlayer';
 import { client, urlFor } from '@/lib/sanity';
+import { resolveSiteSettings } from '@/lib/site-settings';
 
 export const revalidate = 60;
 
@@ -51,12 +52,14 @@ const projectQuery = `*[_type == "project" && slug.current == $slug][0]{
 
 export default async function ProjectPage({ params }) {
   const { slug } = await params;
-  const [project, profile] = await Promise.all([
+  const [project, profile, settingsDocument] = await Promise.all([
     client.fetch(projectQuery, { slug }),
-    client.fetch(`*[_type == "profile"][0]{ backgroundSticker, backgroundStickerX, backgroundStickerY, backgroundStickerRotation, boardColor, categorySettings }`),
+    client.fetch(`*[_type == "profile"][0]{ backgroundSticker, backgroundStickerX, backgroundStickerY, backgroundStickerRotation, boardColor, homeArtworkSize, categorySettings }`),
+    client.fetch(`*[_type == "siteSettings"][0]`),
   ]);
-  const stickerUrl = profile?.backgroundSticker
-    ? urlFor(profile.backgroundSticker).width(320).height(320).fit('max').url()
+  const siteSettings = resolveSiteSettings(settingsDocument, profile);
+  const stickerUrl = siteSettings.backgroundSticker
+    ? urlFor(siteSettings.backgroundSticker).width(320).height(320).fit('max').url()
     : null;
 
   if (!project) {
@@ -64,10 +67,10 @@ export default async function ProjectPage({ params }) {
       <div className="project-page">
         <BoardBackdrop
           src={stickerUrl}
-          color={profile?.boardColor}
-          x={profile?.backgroundStickerX}
-          y={profile?.backgroundStickerY}
-          rotation={profile?.backgroundStickerRotation}
+          color={siteSettings.boardColor}
+          x={siteSettings.backgroundStickerX}
+          y={siteSettings.backgroundStickerY}
+          rotation={siteSettings.backgroundStickerRotation}
         />
         <div className="project-not-found">
           <span className="pin-mark" aria-hidden="true" />
@@ -81,7 +84,7 @@ export default async function ProjectPage({ params }) {
   const embedUrl = getEmbedUrl(project.videoUrl);
   const categoryKey = project.category || '3d';
   const categoryLabel = CATEGORY_LABELS[categoryKey] || 'Works';
-  const categorySetting = profile?.categorySettings?.find((setting) => setting.category === categoryKey);
+  const categorySetting = siteSettings.categorySettings?.find((setting) => setting.category === categoryKey);
   const accentColor = /^#[0-9a-f]{6}$/i.test(categorySetting?.color || '')
     ? categorySetting.color
     : undefined;
@@ -90,10 +93,10 @@ export default async function ProjectPage({ params }) {
     <div className="project-page" style={accentColor ? { '--category-accent': accentColor } : undefined}>
       <BoardBackdrop
           src={stickerUrl}
-          color={profile?.boardColor}
-          x={profile?.backgroundStickerX}
-          y={profile?.backgroundStickerY}
-          rotation={profile?.backgroundStickerRotation}
+          color={siteSettings.boardColor}
+          x={siteSettings.backgroundStickerX}
+          y={siteSettings.backgroundStickerY}
+          rotation={siteSettings.backgroundStickerRotation}
         />
       <article className="project-article">
         <div style={{ display: 'flex', justifyContent: 'center', gap: '1.5rem', marginBottom: '2.5rem', flexWrap: 'wrap' }}>
