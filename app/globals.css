@@ -1,12 +1,129 @@
 @import "tailwindcss";
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+
+:root {
+  color-scheme: light;
+  --paper: #f7f4ec;
+  --paper-deep: #eee9dd;
+  --ink: #20211e;
+  --muted: #77766e;
+  --line: rgba(32, 33, 30, 0.16);
+  --accent: #d86b4c;
+  --display: var(--font-display), "Avenir Next", Futura, sans-serif;
+  --body: var(--font-display), "Avenir Next", Futura, sans-serif;
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+* {
+  box-sizing: border-box;
+}
 
 html,
 body {
-  background-color: #ffffff;
-  color: #000000;
+  min-height: 100%;
   margin: 0;
   padding: 0;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--body);
+  -webkit-font-smoothing: antialiased;
+}
+
+body {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background-image: radial-gradient(rgba(32, 33, 30, 0.06) 0.55px, transparent 0.55px);
+  background-size: 7px 7px;
+}
+
+::selection {
+  color: var(--paper);
+  background: var(--accent);
+}
+
+a {
+  color: inherit;
+}
+
+button,
+a {
+  -webkit-tap-highlight-color: transparent;
+}
+
+.portfolio-footer {
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 112px;
+  padding: 22px 120px;
+  border-top: 1px solid var(--line);
+  color: var(--muted);
+  text-align: center;
+}
+
+.footer-copy {
+  font-size: 0.74rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.sticker-slot {
+  position: absolute;
+  right: clamp(22px, 5vw, 64px);
+  top: 50%;
+  display: flex;
+  width: 76px;
+  height: 76px;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  transform: translateY(-50%) rotate(5deg);
+  border: 1px dashed rgba(216, 107, 76, 0.55);
+  border-radius: 46% 54% 50% 50%;
+  color: var(--accent);
+  background: rgba(255, 255, 255, 0.46);
+}
+
+.sticker-slot span {
+  font-size: 1.5rem;
+  line-height: 1;
+}
+
+.sticker-slot small {
+  font-size: 0.55rem;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+}
+
+@media (max-width: 560px) {
+  .portfolio-footer {
+    min-height: 128px;
+    justify-content: flex-start;
+    padding: 24px 116px 24px 22px;
+    text-align: left;
+  }
+
+  .footer-copy {
+    font-size: 0.64rem;
+    line-height: 1.6;
+  }
+
+  .sticker-slot {
+    right: 20px;
+    width: 68px;
+    height: 68px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
 }

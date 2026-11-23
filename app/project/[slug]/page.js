@@ -75,7 +75,7 @@ export default async function ProjectPage({ params }) {
           boxSizing: 'border-box',
         }}
       >
-        <div style={{ display: 'flex', gap: '1.5rem', marginBottom: '2.5rem', flexWrap: 'wrap' }}>
+        <div style={{ display: 'flex', justifyContent: 'center', gap: '1.5rem', marginBottom: '2.5rem', flexWrap: 'wrap' }}>
           <Link
             href={`/work/${categoryKey}`}
             style={{
@@ -94,10 +94,10 @@ export default async function ProjectPage({ params }) {
         </div>
 
         {/* HEADER */}
-        <header style={{ borderBottom: '1.5px solid #141413', paddingBottom: '2rem', marginBottom: '3rem', width: '100%' }}>
+        <header style={{ borderBottom: '1px solid var(--line)', paddingBottom: '2rem', marginBottom: '3rem', width: '100%', textAlign: 'center' }}>
           <h1
             style={{
-              fontFamily: 'var(--font-display), sans-serif',
+              fontFamily: 'var(--display)',
               fontSize: 'clamp(2rem, 4vw, 3.25rem)',
               fontWeight: 800,
               margin: '0 0 0.75rem 0',
@@ -120,7 +120,7 @@ export default async function ProjectPage({ params }) {
             {project.softwareUsed && <span>{project.softwareUsed}</span>}
           </div>
           {project.description && (
-            <p style={{ fontSize: '1.02rem', lineHeight: '1.65', color: '#2B2A27', whiteSpace: 'pre-line', margin: 0, maxWidth: '850px' }}>
+            <p style={{ fontSize: '1.02rem', lineHeight: '1.65', color: 'var(--ink)', whiteSpace: 'pre-line', margin: '0 auto', maxWidth: '850px' }}>
               {project.description}
             </p>
           )}
@@ -128,7 +128,7 @@ export default async function ProjectPage({ params }) {
           {/* FEATURED AUDIO PLAYER */}
           {project.audioUrl && (
             <div style={{ marginTop: '1.75rem', maxWidth: '540px' }}>
-              <span style={{ display: 'block', fontSize: '0.72rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: '0.45rem', color: '#57554E' }}>
+              <span style={{ display: 'block', fontSize: '0.72rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: '0.45rem', color: '#57554E', textAlign: 'center' }}>
                 Audio Track
               </span>
               <audio

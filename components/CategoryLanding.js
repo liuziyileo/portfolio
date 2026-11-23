@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
+import Image from 'next/image';
 import Link from 'next/link';
 
 const CATEGORIES = [
@@ -22,12 +23,8 @@ export default function CategoryLanding({ profile, groupedProjects }) {
     return () => window.removeEventListener('resize', checkMobile);
   }, []);
 
-  // Scroll-triggered fan-out on mobile when section enters center viewport
   useEffect(() => {
-    if (!isMobile) {
-      setActiveMobileId(null);
-      return;
-    }
+    if (!isMobile) return;
 
     const observer = new IntersectionObserver(
       (entries) => {
@@ -37,14 +34,11 @@ export default function CategoryLanding({ profile, groupedProjects }) {
           }
         });
       },
-      {
-        rootMargin: '-32% 0px -32% 0px',
-        threshold: 0.2,
-      }
+      { rootMargin: '-32% 0px -32% 0px', threshold: 0.2 }
     );
 
-    Object.values(sectionRefs.current).forEach((el) => {
-      if (el) observer.observe(el);
+    Object.values(sectionRefs.current).forEach((element) => {
+      if (element) observer.observe(element);
     });
 
     return () => observer.disconnect();
@@ -58,278 +52,283 @@ export default function CategoryLanding({ profile, groupedProjects }) {
           display: flex;
           flex-direction: column;
           justify-content: space-between;
-          max-width: 1440px;
-          width: 100%;
+          width: min(100%, 1440px);
           margin: 0 auto;
-          padding: 36px 24px 64px;
-          box-sizing: border-box;
+          padding: 26px 24px 48px;
         }
 
-        @media (min-width: 900px) {
-          .landing-wrapper {
-            padding: 48px 48px 40px;
-          }
-        }
-
-        /* TOP BAR */
         .top-header {
           display: flex;
-          justify-content: space-between;
-          align-items: flex-start;
-          gap: 1.5rem;
-          flex-wrap: wrap;
-          z-index: 20;
+          flex-direction: column;
+          align-items: center;
+          gap: 18px;
+          text-align: center;
         }
 
         .brand-name {
-          font-family: var(--font-display), sans-serif;
-          font-size: 1.15rem;
-          font-weight: 800;
-          text-transform: uppercase;
-          letter-spacing: -0.02em;
           margin: 0;
+          font-family: var(--display);
+          font-size: clamp(1rem, 1.7vw, 1.25rem);
+          font-weight: 650;
+          letter-spacing: 0.11em;
+          text-transform: uppercase;
         }
 
         .brand-bio {
-          font-size: 0.85rem;
-          color: #57554E;
-          margin: 0.35rem 0 0 0;
-          max-width: 380px;
-          line-height: 1.45;
+          max-width: 440px;
+          margin: 8px auto 0;
+          color: var(--muted);
+          font-size: 0.9rem;
+          line-height: 1.6;
           white-space: pre-line;
         }
 
         .header-links {
           display: flex;
-          gap: 1.25rem;
+          justify-content: center;
           align-items: center;
           flex-wrap: wrap;
+          gap: 9px;
         }
 
         .header-link {
-          font-size: 0.8rem;
-          font-weight: 600;
-          color: #141413;
+          padding: 7px 12px;
+          border: 1px solid var(--line);
+          border-radius: 999px;
+          color: var(--ink);
+          font-size: 0.76rem;
           text-decoration: none;
-          border-bottom: 1px solid transparent;
-          padding-bottom: 2px;
-          transition: border-color 0.2s ease;
+          transition: color 180ms ease, border-color 180ms ease, background 180ms ease;
         }
 
-        .header-link:hover {
-          border-bottom-color: #141413;
+        .header-link:hover,
+        .header-link:focus-visible {
+          border-color: var(--ink);
+          color: var(--paper);
+          background: var(--ink);
         }
 
-        /* CENTER STAGE: 3 HORIZONTAL ON DESKTOP, 3 VERTICAL ON MOBILE */
+        .landing-kicker {
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          gap: 10px;
+          margin: clamp(46px, 9vh, 92px) 0 0;
+          color: var(--muted);
+          font-size: 0.68rem;
+          letter-spacing: 0.18em;
+          text-align: center;
+          text-transform: uppercase;
+        }
+
+        .landing-kicker::before,
+        .landing-kicker::after {
+          width: 30px;
+          height: 1px;
+          background: var(--accent);
+          content: '';
+        }
+
         .category-stage {
           display: flex;
+          width: 100%;
           flex-direction: column;
           align-items: center;
           justify-content: center;
-          gap: 7rem;
-          padding: 7rem 0;
-          width: 100%;
+          gap: clamp(80px, 13vh, 140px);
+          padding: 72px 0 100px;
         }
 
         @media (min-width: 900px) {
+          .landing-wrapper { padding: 34px 48px 52px; }
           .category-stage {
             flex-direction: row;
-            justify-content: space-around;
-            align-items: center;
-            gap: 2rem;
-            padding: 4rem 0;
-            min-height: 58vh;
+            justify-content: center;
+            gap: clamp(72px, 12vw, 190px);
+            min-height: 54vh;
+            padding: 84px 0 96px;
           }
         }
 
         .category-node {
           position: relative;
           display: flex;
+          min-width: 210px;
+          min-height: 112px;
           flex-direction: column;
           align-items: center;
           justify-content: center;
+          padding: 16px;
+          color: var(--ink);
+          text-align: center;
           text-decoration: none;
-          color: #141413;
           cursor: pointer;
-          padding: 1.5rem 2rem;
           user-select: none;
+          isolation: isolate;
         }
 
-        .category-index {
-          font-size: 0.72rem;
-          font-weight: 700;
-          letter-spacing: 0.14em;
-          color: #78756E;
-          margin-bottom: 0.45rem;
-          position: relative;
-          z-index: 10;
-          transition: color 0.3s ease;
+        .category-node:focus-visible {
+          outline: 1px solid var(--accent);
+          outline-offset: 12px;
+          border-radius: 2px;
         }
+
+        .category-index,
+        .category-count {
+          position: relative;
+          z-index: 3;
+          color: var(--muted);
+          font-size: 0.68rem;
+          letter-spacing: 0.14em;
+          transition: opacity 240ms ease;
+        }
+
+        .category-index { margin-bottom: 8px; }
+        .category-count { margin-top: 9px; letter-spacing: 0.06em; }
 
         .category-title {
-          font-family: var(--font-display), sans-serif;
-          font-size: clamp(1.75rem, 2.7vw, 2.65rem);
-          font-weight: 800;
-          letter-spacing: -0.03em;
-          text-align: center;
-          line-height: 1.08;
-          margin: 0;
           position: relative;
-          z-index: 10;
-          background: rgba(249, 247, 241, 0.82);
-          backdrop-filter: blur(4px);
-          padding: 0.25rem 0.65rem;
-          border-radius: 6px;
-          transition: transform 0.4s cubic-bezier(0.22, 1, 0.36, 1), color 0.25s ease;
+          z-index: 3;
+          margin: 0;
+          padding: 0 8px;
+          font-family: var(--display);
+          font-size: clamp(1.8rem, 3.3vw, 2.7rem);
+          font-weight: 550;
+          letter-spacing: -0.055em;
+          line-height: 1.1;
+          transition: opacity 260ms ease, transform 420ms var(--ease-out);
         }
 
         .category-node.is-open .category-title {
-          transform: scale(1.04);
+          opacity: 0.06;
+          transform: scale(0.94);
         }
 
-        .category-count {
-          font-size: 0.72rem;
-          font-weight: 600;
-          color: #78756E;
-          margin-top: 0.45rem;
-          position: relative;
-          z-index: 10;
-          opacity: 0.85;
-        }
+        .category-node.is-open .category-index,
+        .category-node.is-open .category-count { opacity: 0.12; }
 
-        /* FLOATING HAND OF CARDS AROUND TEXT */
         .card-fan {
           position: absolute;
+          z-index: 2;
           top: 50%;
           left: 50%;
           width: 0;
           height: 0;
           pointer-events: none;
-          z-index: 2;
         }
 
         .fan-card {
           position: absolute;
-          width: 155px;
-          aspect-ratio: 16 / 10;
-          border-radius: 6px;
-          overflow: hidden;
-          border: 1.5px solid #141413;
-          background-color: #EAE6DC;
-          box-shadow: 0 14px 30px rgba(20, 20, 19, 0.14);
           top: 0;
           left: 0;
+          width: clamp(112px, 13vw, 164px);
+          aspect-ratio: 4 / 3;
+          overflow: hidden;
+          border: 5px solid var(--paper);
+          border-radius: 3px;
+          background: var(--paper-deep);
+          box-shadow: 0 12px 30px rgba(32, 33, 30, 0.18);
           opacity: 0;
-          transform: translate(-50%, -50%) scale(0.45) rotate(0deg);
-          transition:
-            transform 0.58s cubic-bezier(0.34, 1.56, 0.64, 1),
-            opacity 0.32s ease;
-        }
-
-        @media (min-width: 900px) {
-          .fan-card {
-            width: 175px;
-          }
+          transform: translate(-50%, -50%) scale(0.24) rotate(0deg);
+          transition: transform 560ms var(--ease-out), opacity 220ms ease;
         }
 
         .fan-card img {
+          display: block;
           width: 100%;
           height: 100%;
           object-fit: cover;
-          display: block;
         }
 
-        /* SPREAD POSITIONS WHEN HOVERED (DESKTOP) OR SCROLLED INTO VIEW (MOBILE) */
         .category-node.is-open .fan-card-0 {
           opacity: 1;
-          transform: translate(calc(-50% - 115px), calc(-50% - 76px)) rotate(-14deg) scale(1);
-          transition-delay: 0.02s;
+          transform: translate(calc(-50% - 90px), calc(-50% + 2px)) rotate(-11deg) scale(1);
+          transition-delay: 30ms;
         }
 
         .category-node.is-open .fan-card-1 {
+          z-index: 2;
           opacity: 1;
-          transform: translate(-50%, calc(-50% - 102px)) rotate(2deg) scale(1.03);
-          transition-delay: 0.06s;
-          z-index: 4;
+          transform: translate(-50%, calc(-50% - 4px)) rotate(1deg) scale(1.08);
+          transition-delay: 70ms;
         }
 
         .category-node.is-open .fan-card-2 {
           opacity: 1;
-          transform: translate(calc(-50% + 115px), calc(-50% - 72px)) rotate(15deg) scale(1);
-          transition-delay: 0.1s;
+          transform: translate(calc(-50% + 90px), calc(-50% + 4px)) rotate(12deg) scale(1);
+          transition-delay: 110ms;
         }
 
-        @media (min-width: 900px) {
-          .category-node.is-open .fan-card-0 {
-            transform: translate(calc(-50% - 135px), calc(-50% - 88px)) rotate(-15deg) scale(1);
-          }
-          .category-node.is-open .fan-card-1 {
-            transform: translate(-50%, calc(-50% - 116px)) rotate(1deg) scale(1.04);
-          }
-          .category-node.is-open .fan-card-2 {
-            transform: translate(calc(-50% + 135px), calc(-50% - 84px)) rotate(16deg) scale(1);
-          }
+        @media (max-width: 520px) {
+          .landing-wrapper { padding-inline: 18px; }
+          .category-stage { gap: 70px; padding-block: 64px 76px; }
+          .category-node { min-height: 102px; }
+          .fan-card { width: 116px; }
+          .category-node.is-open .fan-card-0 { transform: translate(calc(-50% - 63px), -50%) rotate(-9deg) scale(1); }
+          .category-node.is-open .fan-card-1 { transform: translate(-50%, -50%) rotate(1deg) scale(1.04); }
+          .category-node.is-open .fan-card-2 { transform: translate(calc(-50% + 63px), -50%) rotate(10deg) scale(1); }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+          .category-title, .category-index, .category-count, .fan-card { transition-duration: 0.01ms; }
         }
       `}</style>
 
       <div className="landing-wrapper">
-        {/* MINIMAL TOP HEADER */}
         <header className="top-header">
           <div>
             <h1 className="brand-name">{profile?.name || 'Leo Liu'}</h1>
             {profile?.bio && <p className="brand-bio">{profile.bio}</p>}
           </div>
 
-          <nav className="header-links">
+          <nav className="header-links" aria-label="Contact and social links">
             {profile?.email && (
-              <a href={`mailto:${profile.email}`} className="header-link">
-                {profile.email}
-              </a>
+              <a href={`mailto:${profile.email}`} className="header-link">{profile.email}</a>
             )}
-            {profile?.socials?.map((s, idx) => (
-              <a
-                key={idx}
-                href={s.url}
-                target="_blank"
-                rel="noreferrer"
-                className="header-link"
-              >
-                {s.platform} ↗
+            {profile?.socials?.map((social, index) => (
+              <a key={index} href={social.url} target="_blank" rel="noreferrer" className="header-link">
+                {social.platform} ↗
               </a>
             ))}
           </nav>
         </header>
 
-        {/* THREE CATEGORY TRIGGERS */}
-        <main className="category-stage">
-          {CATEGORIES.map((cat) => {
-            const items = groupedProjects[cat.id] || [];
+        <p className="landing-kicker">Selected work · 2026</p>
+
+        <main className="category-stage" aria-label="Portfolio categories">
+          {CATEGORIES.map((category) => {
+            const items = groupedProjects[category.id] || [];
             const previewCards = items.slice(0, 3);
-            const isOpen = isMobile ? activeMobileId === cat.id : hoveredId === cat.id;
+            const isOpen = isMobile ? activeMobileId === category.id : hoveredId === category.id;
 
             return (
               <Link
-                key={cat.id}
-                href={`/work/${cat.id}`}
-                data-cat={cat.id}
-                ref={(el) => (sectionRefs.current[cat.id] = el)}
+                key={category.id}
+                href={`/work/${category.id}`}
+                data-cat={category.id}
+                ref={(element) => (sectionRefs.current[category.id] = element)}
                 className={`category-node ${isOpen ? 'is-open' : ''}`}
-                onMouseEnter={() => !isMobile && setHoveredId(cat.id)}
+                onMouseEnter={() => !isMobile && setHoveredId(category.id)}
                 onMouseLeave={() => !isMobile && setHoveredId(null)}
+                onFocus={() => !isMobile && setHoveredId(category.id)}
+                onBlur={() => !isMobile && setHoveredId(null)}
               >
-                {/* SPRINGING HAND OF 3 ARTWORKS */}
                 <div className="card-fan" aria-hidden="true">
-                  {previewCards.map((proj, idx) => (
-                    <div key={proj._id} className={`fan-card fan-card-${idx}`}>
-                      {proj.thumbUrl && (
-                        <img src={proj.thumbUrl} alt="" />
+                  {previewCards.map((project, index) => (
+                    <div key={project._id} className={`fan-card fan-card-${index}`}>
+                      {project.thumbUrl && (
+                        <Image
+                          src={project.thumbUrl}
+                          alt=""
+                          fill
+                          sizes="(max-width: 520px) 116px, 164px"
+                        />
                       )}
                     </div>
                   ))}
                 </div>
-
-                <span className="category-index">{cat.index}</span>
-                <h2 className="category-title">{cat.label}</h2>
+                <span className="category-index">{category.index} / 03</span>
+                <h2 className="category-title">{category.label}</h2>
                 <span className="category-count">
                   {items.length} {items.length === 1 ? 'Work' : 'Works'}
                 </span>
@@ -337,8 +336,6 @@ export default function CategoryLanding({ profile, groupedProjects }) {
             );
           })}
         </main>
-
-        <div />
       </div>
     </>
   );

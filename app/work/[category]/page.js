@@ -55,11 +55,12 @@ export default async function CategoryPage({ params }) {
 
         .nav-strip {
           display: flex;
-          justify-content: space-between;
+          justify-content: center;
           align-items: center;
           flex-wrap: wrap;
           gap: 1rem;
           margin-bottom: 3rem;
+          text-align: center;
         }
 
         .back-link {
@@ -75,6 +76,7 @@ export default async function CategoryPage({ params }) {
 
         .pill-nav {
           display: flex;
+          justify-content: center;
           gap: 0.5rem;
           flex-wrap: wrap;
         }
@@ -105,7 +107,7 @@ export default async function CategoryPage({ params }) {
 
         @media (min-width: 650px) {
           .section-grid {
-            grid-template-columns: repeat(2, 1fr);
+            grid-template-columns: repeat(2, minmax(0, 1fr));
           }
         }
 
@@ -118,6 +120,8 @@ export default async function CategoryPage({ params }) {
         .work-card {
           display: flex;
           flex-direction: column;
+          align-items: center;
+          text-align: center;
         }
 
         .work-thumb-wrap {
@@ -158,10 +162,10 @@ export default async function CategoryPage({ params }) {
           </nav>
         </div>
 
-        <header style={{ borderBottom: '1.5px solid #141413', paddingBottom: '1.75rem', marginBottom: '3rem' }}>
+        <header style={{ borderBottom: '1.5px solid #141413', paddingBottom: '1.75rem', marginBottom: '3rem', textAlign: 'center' }}>
           <h1
             style={{
-              fontFamily: 'var(--font-display), sans-serif',
+              fontFamily: 'var(--display)',
               fontSize: 'clamp(2.2rem, 4.5vw, 3.6rem)',
               fontWeight: 800,
               letterSpacing: '-0.03em',
@@ -171,7 +175,7 @@ export default async function CategoryPage({ params }) {
             {meta.title}
           </h1>
           {meta.subtitle && (
-            <p style={{ fontSize: '0.95rem', color: '#57554E', margin: 0, maxWidth: '640px' }}>
+            <p style={{ fontSize: '0.95rem', color: '#57554E', margin: '0 auto', maxWidth: '640px' }}>
               {meta.subtitle}
             </p>
           )}
@@ -201,7 +205,7 @@ export default async function CategoryPage({ params }) {
                     )}
                   </div>
 
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', gap: '0.5rem' }}>
+                  <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'baseline', gap: '0.75rem', textAlign: 'center' }}>
                     <h2 style={{ fontSize: '1.05rem', fontWeight: 700, margin: 0 }}>
                       {project.title}
                     </h2>
@@ -211,7 +215,7 @@ export default async function CategoryPage({ params }) {
                   </div>
 
                   {project.softwareUsed && (
-                    <p style={{ fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.05em', color: '#57554E', margin: '0.3rem 0 0 0' }}>
+                    <p style={{ fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.05em', color: '#57554E', margin: '0.3rem 0 0 0', textAlign: 'center' }}>
                       {project.softwareUsed}
                     </p>
                   )}
