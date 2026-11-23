@@ -219,27 +219,6 @@ a {
   background: #191715;
 }
 
-.video-volume {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 12px;
-  padding: 11px 16px;
-  color: #fffdf7;
-  font-size: 0.78rem;
-}
-
-.video-volume input {
-  width: min(180px, 42vw);
-  accent-color: #e48567;
-}
-
-.video-volume output {
-  min-width: 3ch;
-  font-variant-numeric: tabular-nums;
-  text-align: right;
-}
-
 @media (max-width: 560px) {
   .board-sticker {
     width: 72px;
