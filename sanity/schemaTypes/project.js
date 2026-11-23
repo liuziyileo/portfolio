@@ -75,23 +75,17 @@ export const project = {
         },
         {
           type: 'file',
-          title: 'Uploaded Video File (MP4 Turntable / Clip)',
-          options: { accept: 'video/*' },
+          title: 'Uploaded Audio or Video File',
+          options: { accept: 'audio/*,video/*' },
           fields: [
-            { name: 'caption', title: 'Caption (e.g. Turntable 360°)', type: 'string' },
+            { name: 'caption', title: 'Caption / Track Title', type: 'string' },
             {
               name: 'autoLoop',
-              title: 'Auto-play and loop like a GIF?',
+              title: 'Auto-play and loop video like a GIF?',
               type: 'boolean',
               initialValue: true,
             },
           ],
-        },
-        {
-          type: 'file',
-          title: 'Uploaded Audio File (MP3 / WAV)',
-          options: { accept: 'audio/*' },
-          fields: [{ name: 'caption', title: 'Track Title / Audio Note', type: 'string' }],
         },
       ],
     },
