@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import Image from 'next/image';
-import BackgroundSticker from '@/components/BackgroundSticker';
+import BoardBackdrop from '@/components/BoardBackdrop';
 import { client, urlFor } from '@/lib/sanity';
 
 export const revalidate = 60;
@@ -37,7 +37,7 @@ export default async function CategoryPage({ params }) {
       }`,
       { category }
     ),
-    client.fetch(`*[_type == "profile"][0]{ backgroundSticker, backgroundStickerX, backgroundStickerY, backgroundStickerRotation, categorySettings }`),
+    client.fetch(`*[_type == "profile"][0]{ backgroundSticker, backgroundStickerX, backgroundStickerY, backgroundStickerRotation, boardColor, categorySettings }`),
   ]);
   const stickerUrl = profile?.backgroundSticker
     ? urlFor(profile.backgroundSticker).width(320).height(320).fit('max').url()
@@ -50,8 +50,9 @@ export default async function CategoryPage({ params }) {
 
   return (
     <>
-      <BackgroundSticker
+      <BoardBackdrop
         src={stickerUrl}
+        color={profile?.boardColor}
         x={profile?.backgroundStickerX}
         y={profile?.backgroundStickerY}
         rotation={profile?.backgroundStickerRotation}

@@ -14,6 +14,14 @@ export const profile = {
       options: { hotspot: true },
     },
     {
+      name: 'boardColor',
+      title: 'Corkboard Background Color',
+      type: 'string',
+      description: 'Hex color for the corkboard. Default: #B9956E. Example: #D4B18A.',
+      initialValue: '#b9956e',
+      validation: (Rule) => Rule.regex(/^#[0-9a-fA-F]{6}$/),
+    },
+    {
       name: 'backgroundStickerX',
       title: 'Sticker Horizontal Position (%)',
       type: 'number',

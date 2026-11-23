@@ -1,6 +1,6 @@
 import Image from 'next/image';
 import Link from 'next/link';
-import BackgroundSticker from '@/components/BackgroundSticker';
+import BoardBackdrop from '@/components/BoardBackdrop';
 import VideoPlayer from '@/components/VideoPlayer';
 import { client, urlFor } from '@/lib/sanity';
 
@@ -53,7 +53,7 @@ export default async function ProjectPage({ params }) {
   const { slug } = await params;
   const [project, profile] = await Promise.all([
     client.fetch(projectQuery, { slug }),
-    client.fetch(`*[_type == "profile"][0]{ backgroundSticker, backgroundStickerX, backgroundStickerY, backgroundStickerRotation, categorySettings }`),
+    client.fetch(`*[_type == "profile"][0]{ backgroundSticker, backgroundStickerX, backgroundStickerY, backgroundStickerRotation, boardColor, categorySettings }`),
   ]);
   const stickerUrl = profile?.backgroundSticker
     ? urlFor(profile.backgroundSticker).width(320).height(320).fit('max').url()
@@ -62,8 +62,9 @@ export default async function ProjectPage({ params }) {
   if (!project) {
     return (
       <div className="project-page">
-        <BackgroundSticker
+        <BoardBackdrop
           src={stickerUrl}
+          color={profile?.boardColor}
           x={profile?.backgroundStickerX}
           y={profile?.backgroundStickerY}
           rotation={profile?.backgroundStickerRotation}
@@ -87,8 +88,9 @@ export default async function ProjectPage({ params }) {
 
   return (
     <div className="project-page" style={accentColor ? { '--category-accent': accentColor } : undefined}>
-      <BackgroundSticker
+      <BoardBackdrop
           src={stickerUrl}
+          color={profile?.boardColor}
           x={profile?.backgroundStickerX}
           y={profile?.backgroundStickerY}
           rotation={profile?.backgroundStickerRotation}

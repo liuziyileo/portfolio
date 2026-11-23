@@ -1,5 +1,5 @@
 import { client, urlFor } from '@/lib/sanity';
-import BackgroundSticker from '@/components/BackgroundSticker';
+import BoardBackdrop from '@/components/BoardBackdrop';
 import CategoryLanding from '@/components/CategoryLanding';
 
 export const revalidate = 60;
@@ -38,8 +38,9 @@ export default async function Home() {
 
   return (
     <>
-      <BackgroundSticker
+      <BoardBackdrop
         src={stickerUrl}
+        color={profile?.boardColor}
         x={profile?.backgroundStickerX}
         y={profile?.backgroundStickerY}
         rotation={profile?.backgroundStickerRotation}
