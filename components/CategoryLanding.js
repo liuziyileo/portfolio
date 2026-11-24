@@ -22,6 +22,7 @@ export default function CategoryLanding({ profile, siteSettings, groupedProjects
   });
   const [hoveredId, setHoveredId] = useState(null);
   const [activeMobileId, setActiveMobileId] = useState(null);
+  const [emailCopyStatus, setEmailCopyStatus] = useState('');
   const [isMobile, setIsMobile] = useState(false);
   const sectionRefs = useRef({});
 
@@ -52,6 +53,17 @@ export default function CategoryLanding({ profile, siteSettings, groupedProjects
 
     return () => observer.disconnect();
   }, [isMobile]);
+
+  async function copyEmail(email) {
+    try {
+      await navigator.clipboard.writeText(email);
+      setEmailCopyStatus('Copied');
+    } catch {
+      setEmailCopyStatus('Copy failed');
+    }
+
+    window.setTimeout(() => setEmailCopyStatus(''), 1800);
+  }
 
   return (
     <>
@@ -103,12 +115,19 @@ export default function CategoryLanding({ profile, siteSettings, groupedProjects
         }
 
         .header-link {
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
           padding: 7px 12px;
           border: 1px solid var(--line);
           border-radius: 999px;
           color: var(--ink);
+          background: transparent;
+          font-family: inherit;
           font-size: 0.76rem;
+          line-height: 1.2;
           text-decoration: none;
+          cursor: pointer;
           transition: color 180ms ease, border-color 180ms ease, background 180ms ease;
         }
 
@@ -321,7 +340,19 @@ export default function CategoryLanding({ profile, siteSettings, groupedProjects
 
           <nav className="header-links" aria-label="Contact and social links">
             {profile?.email && (
-              <a href={`mailto:${profile.email}`} className="header-link">{profile.email}</a>
+              <>
+                <button
+                  type="button"
+                  className="header-link"
+                  aria-label={emailCopyStatus === 'Copied' ? 'Email copied to clipboard' : `Copy ${profile.email} to clipboard`}
+                  onClick={() => copyEmail(profile.email)}
+                >
+                  {emailCopyStatus === 'Copied' ? 'Copied' : profile.email}
+                </button>
+                <span className="sr-only" role="status" aria-live="polite">
+                  {emailCopyStatus}
+                </span>
+              </>
             )}
             {profile?.socials?.map((social, index) => (
               <a key={index} href={social.url} target="_blank" rel="noreferrer" className="header-link">
