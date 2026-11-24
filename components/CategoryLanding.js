@@ -63,7 +63,7 @@ export default function CategoryLanding({ profile, siteSettings, groupedProjects
           display: flex;
           flex-direction: column;
           justify-content: space-between;
-          width: min(100%, 1440px);
+          width: min(100%, 1920px);
           margin: 0 auto;
           padding: 26px 24px 48px;
         }
@@ -134,8 +134,8 @@ export default function CategoryLanding({ profile, siteSettings, groupedProjects
           .category-stage {
             flex-direction: row;
             justify-content: center;
-            gap: clamp(72px, 12vw, 190px);
-            min-height: 54vh;
+            gap: clamp(24px, 4.5vw, 110px);
+            min-height: 58vh;
             padding: 84px 0 96px;
           }
         }
@@ -143,9 +143,9 @@ export default function CategoryLanding({ profile, siteSettings, groupedProjects
         .category-node {
           position: relative;
           display: flex;
-          width: clamp(240px, 25vw, 340px);
+          width: clamp(220px, 22vw, 460px);
           min-width: 0;
-          min-height: 184px;
+          min-height: clamp(184px, 16vw, 260px);
           flex-direction: column;
           align-items: center;
           justify-content: center;
@@ -214,7 +214,7 @@ export default function CategoryLanding({ profile, siteSettings, groupedProjects
           margin: 0;
           padding: 0 8px;
           font-family: var(--display);
-          font-size: clamp(1.8rem, 3.3vw, 2.7rem);
+          font-size: clamp(2.2rem, 3.4vw, 4.5rem);
           font-weight: 550;
           letter-spacing: -0.055em;
           line-height: 1.1;
